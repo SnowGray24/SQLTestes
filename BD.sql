@@ -116,3 +116,14 @@ WHERE tbPedidos.Data = '2020-02-01';
 /* ******************************************************************************************************************************** */
 
 
+/* *********************************************************** QUESTÃO 6 ********************************************************** */
+SELECT tbPedidos.Data AS Data, tbClientes.Nome AS Nome, tbClientes.Cidade AS Cidade, (SELECT SUM(Qtde) FROM tbPedidosItens) AS TotalPedidos, (SELECT SUM(Qtde * Unitario) FROM tbPedidosItens) AS TotalPrecoBruto, (SELECT SUM(Desconto) FROM tbPedidosItens) AS TotalDesconto, ((SELECT SUM(Qtde * Unitario) FROM tbPedidosItens) - ((SELECT SUM(Desconto) FROM tbPedidosItens) * (SELECT SUM(Qtde * Unitario) FROM tbPedidosItens)/100)) AS TotalLiquido
+FROM ((tbPedidosItens
+INNER JOIN tbPedidos ON tbPedidosItens.PedidoID = tbPedidos.ID)
+INNER JOIN tbClientes ON tbPedidos.ClienteCPF = tbClientes.CPF)
+WHERE tbPedidos.Data = '2020-02-01'
+GROUP BY Data, Nome, Cidade
+ORDER BY Data;
+/* ******************************************************************************************************************************** */
+
+
