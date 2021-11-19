@@ -78,7 +78,7 @@ INSERT INTO tbPedidosItens (PedidoID, ProdutoID, Qtde, Unitario, Desconto) VALUE
 /* *********************************************************** QUESTÃO 3 ********************************************************** */
 INSERT INTO tbClientes (CPF, Nome, Cidade, Bairro) VALUES ('0000002', 'Jinx', 'Pau dos Ferros', 'Bairro João XXIII');
 
-INSERT INTO tbPedidos ( Pedido, Data, ClienteCPF) VALUES ( 'AJDBSLEMFMSS', '2020-02-01', '0000001');
+INSERT INTO tbPedidos ( Pedido, Data, ClienteCPF) VALUES ( 'AJDBSLEMFMSS', '2020-02-01', '0000002');
 
 INSERT INTO tbPedidosItens (PedidoID, ProdutoID, Qtde, Unitario, Desconto) VALUES (
 	(SELECT ID FROM tbPedidos WHERE ClienteCPF='0000002'),
@@ -95,3 +95,14 @@ INSERT INTO tbPedidosItens (PedidoID, ProdutoID, Qtde, Unitario, Desconto) VALUE
 	(SELECT Preco FROM tbProdutos WHERE Codigo='0003'),
 	10
 );
+/* ******************************************************************************************************************************** */
+
+
+/* *********************************************************** QUESTÃO 4 ********************************************************** */
+
+SELECT tbClientes.CPF, tbClientes.Nome, tbClientes.Cidade, tbClientes.Bairro, tbPedidos.Pedido, tbPedidos.Data, tbProdutos.Codigo, tbProdutos.Descricao, tbPedidosItens.Qtde, tbPedidosItens.Unitario, tbPedidosItens.Desconto, (SELECT SUM(Qtde) AS TotalItens FROM tbPedidosItens)
+FROM (((tbPedidosItens
+INNER JOIN tbPedidos ON tbPedidosItens.PedidoID = tbPedidos.ID)
+INNER JOIN tbProdutos ON tbPedidosItens.ProdutoID = tbProdutos.ID)
+INNER JOIN tbClientes ON tbPedidos.ClienteCPF = tbClientes.CPF)
+WHERE tbPedidos.Data = '2020-02-01';
