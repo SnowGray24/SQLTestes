@@ -145,3 +145,15 @@ INNER JOIN tbClientes ON tbPedidos.ClienteCPF = tbClientes.CPF)
 WHERE tbClientes.Cidade = 'Pau dos Ferros'
 GROUP BY Cidade, Bairro;
 /* ******************************************************************************************************************************** */
+
+
+/* *********************************************************** QUESTÃO 9 ********************************************************** */
+SELECT tbProdutos.Codigo AS Produto, tbProdutos.Grupo AS Grupo, (SELECT SUM(Qtde) FROM tbPedidosItens WHERE PedidoID='0001') AS TotalPedidos, (SELECT SUM(Qtde * Unitario) FROM tbPedidosItens WHERE PedidoID='0001') AS TotalPrecoBruto, (SELECT SUM(Desconto) FROM tbPedidosItens WHERE PedidoID='0001') AS TotalDesconto, ((SELECT SUM(Qtde * Unitario) FROM tbPedidosItens WHERE PedidoID='0001') - ((SELECT SUM(Desconto) FROM tbPedidosItens WHERE PedidoID='0001') * (SELECT SUM(Qtde * Unitario) FROM tbPedidosItens WHERE PedidoID='0001')/100)) AS TotalLiquido, ((((SELECT SUM(Qtde * Unitario) FROM tbPedidosItens WHERE PedidoID='0001') - ((SELECT SUM(Desconto) FROM tbPedidosItens WHERE PedidoID='0001') * (SELECT SUM(Qtde * Unitario) FROM tbPedidosItens WHERE PedidoID='0001')/100))/3)) AS ValorMedioVendas
+FROM (((tbPedidosItens
+INNER JOIN tbPedidos ON tbPedidosItens.PedidoID = tbPedidos.ID)
+INNER JOIN tbProdutos ON tbPedidosItens.ProdutoID = tbProdutos.ID)
+INNER JOIN tbClientes ON tbPedidos.ClienteCPF = tbClientes.CPF)
+WHERE tbProdutos.Codigo = '0001'
+GROUP BY Codigo, Produto, Grupo;
+/* ******************************************************************************************************************************** */
+
