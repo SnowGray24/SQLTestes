@@ -85,24 +85,34 @@ INSERT INTO tbPedidosItens (PedidoID, ProdutoID, Qtde, Unitario, Desconto) VALUE
 	(SELECT ID FROM tbProdutos WHERE Codigo='0002'),
 	10,
 	(SELECT Preco FROM tbProdutos WHERE Codigo='0002'),
-	0
-);
+	0);
 
 INSERT INTO tbPedidosItens (PedidoID, ProdutoID, Qtde, Unitario, Desconto) VALUES (
 	(SELECT ID FROM tbPedidos WHERE ClienteCPF='0000002'),
 	(SELECT ID FROM tbProdutos WHERE Codigo='0003'),
 	10,
 	(SELECT Preco FROM tbProdutos WHERE Codigo='0003'),
-	10
-);
+	10);
 /* ******************************************************************************************************************************** */
 
 
 /* *********************************************************** QUESTÃO 4 ********************************************************** */
-
 SELECT tbClientes.CPF, tbClientes.Nome, tbClientes.Cidade, tbClientes.Bairro, tbPedidos.Pedido, tbPedidos.Data, tbProdutos.Codigo, tbProdutos.Descricao, tbPedidosItens.Qtde, tbPedidosItens.Unitario, tbPedidosItens.Desconto, (SELECT SUM(Qtde) AS TotalItens FROM tbPedidosItens)
 FROM (((tbPedidosItens
 INNER JOIN tbPedidos ON tbPedidosItens.PedidoID = tbPedidos.ID)
 INNER JOIN tbProdutos ON tbPedidosItens.ProdutoID = tbProdutos.ID)
 INNER JOIN tbClientes ON tbPedidos.ClienteCPF = tbClientes.CPF)
 WHERE tbPedidos.Data = '2020-02-01';
+/* ******************************************************************************************************************************** */
+
+
+/* *********************************************************** QUESTÃO 5 ********************************************************** */
+SELECT tbPedidos.Data, tbPedidos.Pedido, tbClientes.Nome, tbClientes.Bairro, tbClientes.Cidade, (SELECT SUM(Qtde) FROM tbPedidosItens) AS TotalItens, (SELECT SUM(Qtde * Unitario) FROM tbPedidosItens) AS PrecoBruto, (SELECT SUM(Desconto) FROM tbPedidosItens) AS TotalDesconto, ((SELECT SUM(Qtde * Unitario) FROM tbPedidosItens) - ((SELECT SUM(Desconto) FROM tbPedidosItens) * (SELECT SUM(Qtde * Unitario) FROM tbPedidosItens)/100)) AS TotalLiquido
+FROM (((tbPedidosItens
+INNER JOIN tbPedidos ON tbPedidosItens.PedidoID = tbPedidos.ID)
+INNER JOIN tbProdutos ON tbPedidosItens.ProdutoID = tbProdutos.ID)
+INNER JOIN tbClientes ON tbPedidos.ClienteCPF = tbClientes.CPF)
+WHERE tbPedidos.Data = '2020-02-01';
+/* ******************************************************************************************************************************** */
+
+
