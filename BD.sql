@@ -162,3 +162,9 @@ DELETE FROM tbPedidosItens WHERE (SELECT ID FROM tbPedidos WHERE ClienteCPF='000
 DELETE FROM tbPedidos WHERE ClienteCPF = '0000001';
 DELETE FROM tbClientes WHERE CPF='0000001';
 /* ******************************************************************************************************************************** */
+
+/* *********************************************************** QUESTÃO 11 ********************************************************** */
+DELETE FROM tbPedidos WHERE (SELECT PedidoID FROM tbPedidosItens WHERE (SELECT ID FROM tbProdutos WHERE Codigo='0001')=ProdutoID)=ID;
+DELETE FROM tbPedidosItens WHERE (SELECT ID FROM tbProdutos WHERE Codigo='0001')=ProdutoID;
+/* ******************************************************************************************************************************** */
+
