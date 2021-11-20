@@ -33,7 +33,10 @@ CREATE TABLE tbPedidosItens (
 );
 
 
-/* **************************************** Fazendo a primeira questão ************************************************* */
+
+/* *********************************************************** QUESTÃO 1 ********************************************************** */
+/* ******************************************************************************************************************************** */
+
 /* Questão 1 letra A */
 INSERT INTO tbProdutos ( Codigo, Descricao, Grupo, Preco) VALUES ( '0001', 'Produto Teste 01', 'CELULARES', 30.00);
 
@@ -48,10 +51,13 @@ INSERT INTO tbProdutos ( Codigo, Descricao, Grupo, Preco) VALUES ( '0004', 'Prod
 
 /* Questão 1 letra E */
 INSERT INTO tbProdutos ( Codigo, Descricao, Grupo, Preco) VALUES ( '0005', 'Produto Teste 05', 'CELULARES', 50.00);
+
 /* ******************************************************************************************************************************** */
 
 
 /* *********************************************************** QUESTÃO 2 ********************************************************** */
+/* ******************************************************************************************************************************** */
+
 INSERT INTO tbClientes (CPF, Nome, Cidade, Bairro) VALUES ('0000001', 'Deadpool', 'Pau dos Ferros', 'Bairro João XXIII');
 
 INSERT INTO tbPedidos ( Pedido, Data, ClienteCPF) VALUES ( 'AJDBESSD555', '2020-02-01', '0000001');
@@ -71,11 +77,14 @@ INSERT INTO tbPedidosItens (PedidoID, ProdutoID, Qtde, Unitario, Desconto) VALUE
 	(SELECT Preco FROM tbProdutos WHERE Codigo='0002'),
 	0
 );
+
 /* ******************************************************************************************************************************** */
 
 
 
 /* *********************************************************** QUESTÃO 3 ********************************************************** */
+/* ******************************************************************************************************************************** */
+
 INSERT INTO tbClientes (CPF, Nome, Cidade, Bairro) VALUES ('0000002', 'Jinx', 'Pau dos Ferros', 'Bairro João XXIII');
 
 INSERT INTO tbPedidos ( Pedido, Data, ClienteCPF) VALUES ( 'AJDBSLEMFMSS', '2020-02-01', '0000002');
@@ -93,78 +102,172 @@ INSERT INTO tbPedidosItens (PedidoID, ProdutoID, Qtde, Unitario, Desconto) VALUE
 	10,
 	(SELECT Preco FROM tbProdutos WHERE Codigo='0003'),
 	10);
+	
 /* ******************************************************************************************************************************** */
 
 
 /* *********************************************************** QUESTÃO 4 ********************************************************** */
-SELECT tbClientes.CPF, tbClientes.Nome, tbClientes.Cidade, tbClientes.Bairro, tbPedidos.Pedido, tbPedidos.Data, tbProdutos.Codigo, tbProdutos.Descricao, tbPedidosItens.Qtde, tbPedidosItens.Unitario, tbPedidosItens.Desconto, (SELECT SUM(Qtde) AS TotalItens FROM tbPedidosItens)
+
+SELECT 
+	tbClientes.CPF,
+	tbClientes.Nome,
+	tbClientes.Cidade,
+	tbClientes.Bairro,
+	tbPedidos.Pedido,
+	tbPedidos.Data,
+	tbProdutos.Codigo,
+	tbProdutos.Descricao,
+	tbPedidosItens.Qtde,
+	tbPedidosItens.Unitario,
+	tbPedidosItens.Desconto,
+	(SELECT SUM(Qtde) AS TotalItens FROM tbPedidosItens)
 FROM (((tbPedidosItens
-INNER JOIN tbPedidos ON tbPedidosItens.PedidoID = tbPedidos.ID)
-INNER JOIN tbProdutos ON tbPedidosItens.ProdutoID = tbProdutos.ID)
-INNER JOIN tbClientes ON tbPedidos.ClienteCPF = tbClientes.CPF)
+	INNER JOIN tbPedidos ON tbPedidosItens.PedidoID = tbPedidos.ID)
+	INNER JOIN tbProdutos ON tbPedidosItens.ProdutoID = tbProdutos.ID)
+	INNER JOIN tbClientes ON tbPedidos.ClienteCPF = tbClientes.CPF)
 WHERE tbPedidos.Data = '2020-02-01';
+
 /* ******************************************************************************************************************************** */
 
 
 /* *********************************************************** QUESTÃO 5 ********************************************************** */
-SELECT tbPedidos.Data, tbPedidos.Pedido, tbClientes.Nome, tbClientes.Bairro, tbClientes.Cidade, (SELECT SUM(Qtde) FROM tbPedidosItens) AS TotalItens, (SELECT SUM(Qtde * Unitario) FROM tbPedidosItens) AS PrecoBruto, (SELECT SUM(Desconto) FROM tbPedidosItens) AS TotalDesconto, ((SELECT SUM(Qtde * Unitario) FROM tbPedidosItens) - ((SELECT SUM(Desconto) FROM tbPedidosItens) * (SELECT SUM(Qtde * Unitario) FROM tbPedidosItens)/100)) AS TotalLiquido
-FROM (((tbPedidosItens
-INNER JOIN tbPedidos ON tbPedidosItens.PedidoID = tbPedidos.ID)
-INNER JOIN tbProdutos ON tbPedidosItens.ProdutoID = tbProdutos.ID)
-INNER JOIN tbClientes ON tbPedidos.ClienteCPF = tbClientes.CPF)
-WHERE tbPedidos.Data = '2020-02-01';
+/* ******************************************************************************************************************************** */
+
+SELECT
+	Result.Data AS Data,
+	Result.Pedido AS Pedido,
+	Result.CPF AS Cliente,
+	Result.Nome AS Nome,
+	Result.Cidade AS Cidade,
+	SUM(Result.Qtde) AS TotalPedidos,
+	SUM(Result.Qtde * Result.Unitario) AS TotalBruto,
+	SUM(Result.Desconto) AS TotalDesconto,
+	(SUM(Result.Qtde * Result.Unitario) - ((SUM(Result.Qtde * Result.Unitario) * SUM(Result.Desconto)) / 100)) AS TotalLiquido
+	
+FROM
+	(SELECT * FROM ((tbClientes
+	INNER JOIN tbPedidos ON tbPedidos.ClienteCPF = tbClientes.CPF)
+	INNER JOIN tbPedidosItens ON tbPedidos.ID = tbPedidosItens.PedidoID)
+	WHERE tbPedidos.Data >= '2020-02-01' AND tbPedidos.Data <= '2021-02-01'
+	) AS Result
+
+GROUP BY Data, Pedido, Cliente, Nome, Cidade
+
+
 /* ******************************************************************************************************************************** */
 
 
 /* *********************************************************** QUESTÃO 6 ********************************************************** */
-SELECT tbPedidos.Data AS Data, tbClientes.Nome AS Nome, tbClientes.Cidade AS Cidade, (SELECT SUM(Qtde) FROM tbPedidosItens) AS TotalPedidos, (SELECT SUM(Qtde * Unitario) FROM tbPedidosItens) AS TotalPrecoBruto, (SELECT SUM(Desconto) FROM tbPedidosItens) AS TotalDesconto, ((SELECT SUM(Qtde * Unitario) FROM tbPedidosItens) - ((SELECT SUM(Desconto) FROM tbPedidosItens) * (SELECT SUM(Qtde * Unitario) FROM tbPedidosItens)/100)) AS TotalLiquido
-FROM ((tbPedidosItens
-INNER JOIN tbPedidos ON tbPedidosItens.PedidoID = tbPedidos.ID)
-INNER JOIN tbClientes ON tbPedidos.ClienteCPF = tbClientes.CPF)
-WHERE tbPedidos.Data = '2020-02-01'
-GROUP BY Data, Nome, Cidade
-ORDER BY Data;
+/* ******************************************************************************************************************************** */
+
+SELECT
+	Result.Data AS Data,
+	Result.CPF AS Cliente,
+	Result.Cidade AS Cidade,
+	SUM(Result.Qtde) AS TotalPedidos,
+	SUM(Result.Qtde * Result.Unitario) AS TotalBruto,
+	SUM(Result.Desconto) AS TotalDesconto,
+	(SUM(Result.Qtde * Result.Unitario) - ((SUM(Result.Qtde * Result.Unitario) * SUM(Result.Desconto)) / 100)) AS TotalLiquido
+	
+FROM
+	(SELECT * FROM ((tbClientes
+	INNER JOIN tbPedidos ON tbPedidos.ClienteCPF = tbClientes.CPF)
+	INNER JOIN tbPedidosItens ON tbPedidos.ID = tbPedidosItens.PedidoID)
+	WHERE tbPedidos.Data >= '2020-02-01' AND tbPedidos.Data <= '2021-02-01'
+	) AS Result
+
+GROUP BY Data, Cliente, Cidade
+ORDER BY Data DESC
+
 /* ******************************************************************************************************************************** */
 
 
 /* *********************************************************** QUESTÃO 7 ********************************************************** */
-SELECT tbClientes.Nome AS Nome, tbClientes.Cidade AS Cidade, (SELECT SUM(Qtde) FROM tbPedidosItens) AS TotalPedidos, (SELECT SUM(Qtde * Unitario) FROM tbPedidosItens) AS TotalPrecoBruto, (SELECT SUM(Desconto) FROM tbPedidosItens) AS TotalDesconto, ((SELECT SUM(Qtde * Unitario) FROM tbPedidosItens) - ((SELECT SUM(Desconto) FROM tbPedidosItens) * (SELECT SUM(Qtde * Unitario) FROM tbPedidosItens)/100)) AS TotalLiquido
-FROM ((tbPedidosItens
-INNER JOIN tbPedidos ON tbPedidosItens.PedidoID = tbPedidos.ID)
-INNER JOIN tbClientes ON tbPedidos.ClienteCPF = tbClientes.CPF)
-WHERE tbPedidos.Data = '2020-02-01'
-GROUP BY Nome, Cidade
-ORDER BY Nome;
 /* ******************************************************************************************************************************** */
 
+SELECT
+	Result.Nome AS Cliente,
+	Result.Cidade AS Cidade,
+	SUM(Result.Qtde) AS TotalPedidos,
+	SUM(Result.Qtde * Result.Unitario) AS TotalBruto,
+	SUM(Result.Desconto) AS TotalDesconto,
+	(SUM(Result.Qtde * Result.Unitario) - ((SUM(Result.Qtde * Result.Unitario) * SUM(Result.Desconto)) / 100)) AS TotalLiquido
+	
+FROM
+	(SELECT * FROM ((tbClientes
+	INNER JOIN tbPedidos ON tbPedidos.ClienteCPF = tbClientes.CPF)
+	INNER JOIN tbPedidosItens ON tbPedidos.ID = tbPedidosItens.PedidoID)
+	WHERE tbPedidos.Data >= '2020-02-01' AND tbPedidos.Data <= '2021-02-01'
+	) AS Result
+
+GROUP BY Cliente, Cidade
+ORDER BY Cliente
+
+/* ******************************************************************************************************************************** */
+
+
 /* *********************************************************** QUESTÃO 8 ********************************************************** */
-SELECT tbClientes.Bairro AS Bairro, tbClientes.Cidade AS Cidade, (SELECT SUM(Qtde) FROM tbPedidosItens) AS TotalPedidos, (SELECT SUM(Qtde * Unitario) FROM tbPedidosItens) AS TotalPrecoBruto, (SELECT SUM(Desconto) FROM tbPedidosItens) AS TotalDesconto, ((SELECT SUM(Qtde * Unitario) FROM tbPedidosItens) - ((SELECT SUM(Desconto) FROM tbPedidosItens) * (SELECT SUM(Qtde * Unitario) FROM tbPedidosItens)/100)) AS TotalLiquido
-FROM ((tbPedidosItens
-INNER JOIN tbPedidos ON tbPedidosItens.PedidoID = tbPedidos.ID)
-INNER JOIN tbClientes ON tbPedidos.ClienteCPF = tbClientes.CPF)
-WHERE tbClientes.Cidade = 'Pau dos Ferros'
-GROUP BY Cidade, Bairro;
+/* ******************************************************************************************************************************** */
+
+SELECT
+	Result.Cidade AS Cidade,
+	Result.Bairro AS Bairro,
+	SUM(Result.Qtde) AS TotalPedidos,
+	SUM(Result.Qtde * Result.Unitario) AS TotalBruto,
+	SUM(Result.Desconto) AS TotalDesconto,
+	(SUM(Result.Qtde * Result.Unitario) - ((SUM(Result.Qtde * Result.Unitario) * SUM(Result.Desconto)) / 100)) AS TotalLiquido
+	
+FROM
+	(SELECT * FROM ((tbClientes
+	INNER JOIN tbPedidos ON tbPedidos.ClienteCPF = tbClientes.CPF)
+	INNER JOIN tbPedidosItens ON tbPedidos.ID = tbPedidosItens.PedidoID)
+	WHERE tbClientes.Cidade = 'Pau dos Ferros'
+	) AS Result
+
+GROUP BY Cidade, Bairro
 /* ******************************************************************************************************************************** */
 
 
 /* *********************************************************** QUESTÃO 9 ********************************************************** */
-SELECT tbProdutos.Codigo AS Produto, tbProdutos.Grupo AS Grupo, (SELECT SUM(Qtde) FROM tbPedidosItens WHERE PedidoID='0001') AS TotalPedidos, (SELECT SUM(Qtde * Unitario) FROM tbPedidosItens WHERE PedidoID='0001') AS TotalPrecoBruto, (SELECT SUM(Desconto) FROM tbPedidosItens WHERE PedidoID='0001') AS TotalDesconto, ((SELECT SUM(Qtde * Unitario) FROM tbPedidosItens WHERE PedidoID='0001') - ((SELECT SUM(Desconto) FROM tbPedidosItens WHERE PedidoID='0001') * (SELECT SUM(Qtde * Unitario) FROM tbPedidosItens WHERE PedidoID='0001')/100)) AS TotalLiquido, ((((SELECT SUM(Qtde * Unitario) FROM tbPedidosItens WHERE PedidoID='0001') - ((SELECT SUM(Desconto) FROM tbPedidosItens WHERE PedidoID='0001') * (SELECT SUM(Qtde * Unitario) FROM tbPedidosItens WHERE PedidoID='0001')/100))/3)) AS ValorMedioVendas
-FROM (((tbPedidosItens
-INNER JOIN tbPedidos ON tbPedidosItens.PedidoID = tbPedidos.ID)
-INNER JOIN tbProdutos ON tbPedidosItens.ProdutoID = tbProdutos.ID)
-INNER JOIN tbClientes ON tbPedidos.ClienteCPF = tbClientes.CPF)
-WHERE tbProdutos.Codigo = '0001'
-GROUP BY Codigo, Produto, Grupo;
 /* ******************************************************************************************************************************** */
 
-/* *********************************************************** QUESTÃO 10 ********************************************************** */
+SELECT
+	Result.Codigo AS Produto,
+	Result.Grupo AS Grupo,
+	SUM(Result.Qtde) AS TotalVendido,
+	SUM(Result.Qtde * Result.Unitario) AS TotalBruto,
+	SUM(Result.Desconto) AS TotalDesconto,
+	(SUM(Result.Qtde * Result.Unitario) - ((SUM(Result.Qtde * Result.Unitario) * SUM(Result.Desconto)) / 100)) AS TotalLiquido,
+	((SUM(Result.Qtde * Result.Unitario) - ((SUM(Result.Qtde * Result.Unitario) * SUM(Result.Desconto)) / 100)) / 3) AS ValorMedio
+	
+FROM
+	(SELECT * FROM (((tbClientes
+	INNER JOIN tbPedidos ON tbPedidos.ClienteCPF = tbClientes.CPF)
+	INNER JOIN tbPedidosItens ON tbPedidos.ID = tbPedidosItens.PedidoID)
+	INNER JOIN tbProdutos ON tbPedidosItens.ProdutoID = tbProdutos.ID)
+	WHERE tbProdutos.Codigo = '0002'
+	) AS Result
+
+GROUP BY Produto, Grupo
+
+
+/* ******************************************************************************************************************************** */
+
+
+/* *********************************************************** QUESTÃO 10 ********************************************************* */
+/* ******************************************************************************************************************************** */
+
 DELETE FROM tbPedidosItens WHERE (SELECT ID FROM tbPedidos WHERE ClienteCPF='0000001')=PedidoID;
 DELETE FROM tbPedidos WHERE ClienteCPF = '0000001';
 DELETE FROM tbClientes WHERE CPF='0000001';
+
 /* ******************************************************************************************************************************** */
 
-/* *********************************************************** QUESTÃO 11 ********************************************************** */
+
+/* *********************************************************** QUESTÃO 11 ********************************************************* */
+/* ******************************************************************************************************************************** */
+
 DELETE FROM tbPedidos WHERE (SELECT PedidoID FROM tbPedidosItens WHERE (SELECT ID FROM tbProdutos WHERE Codigo='0001')=ProdutoID)=ID;
 DELETE FROM tbPedidosItens WHERE (SELECT ID FROM tbProdutos WHERE Codigo='0001')=ProdutoID;
-/* ******************************************************************************************************************************** */
 
+/* ******************************************************************************************************************************** */
